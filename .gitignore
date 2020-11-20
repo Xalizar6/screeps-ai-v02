@@ -1,3 +1,5 @@
-# .gitignore
+#Don't add the node_modules to the Git repository
 node_modules
+
+#Don't add the file with the credentials to the Git repository
 /.screeps.json

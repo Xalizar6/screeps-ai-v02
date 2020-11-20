@@ -1,5 +1,6 @@
 {
-  "name": "screeps-starter-codebase",
+  "name": "screeps-ai-v02",
+  "homepage": "https://github.com/owner/project#readme",
   "devDependencies": {
     "@types/lodash": "^3.10.3",
     "@types/screeps": "^3.2.1",
