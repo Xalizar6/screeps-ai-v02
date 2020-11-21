@@ -1,6 +1,6 @@
-let creepLogic = {
-    harvester:     require('./harvester'),
-    upgrader:      require('./upgrader'),
+const creepLogic = {
+  harvester: require('./harvester'),
+  upgrader: require('./upgrader')
 }
 
-module.exports = creepLogic;
+module.exports = creepLogic

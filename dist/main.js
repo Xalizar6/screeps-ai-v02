@@ -49,46 +49,47 @@ function __getDirname(path) {
 	return require("path").resolve(__dirname + "/" + path + "/../");
 }
 /********** End of header **********/
-/********** Start module 0: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\main.js **********/
+/********** Start module 0: D:\Games\Screeps\screeps-ai-v02\src\main.js **********/
 __modules[0] = function(module, exports) {
-let creepLogic = __require(1,0);
-let roomLogic = __require(2,0);
-let prototypes = __require(3,0);
-
+const creepLogic = __require(1,0)
+const roomLogic = __require(2,0)
+const prototypes = __require(3,0)
 
 module.exports.loop = function () {
-    Game.myRooms = _.filter(Game.rooms, r => r.controller && r.controller.level > 0 && r.controller.my);
-    _.forEach(Game.myRooms, r => roomLogic.spawning(r));
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
+  Game.myRooms = _.filter(Game.rooms, r => r.controller && r.controller.level > 0 && r.controller.my)
+  _.forEach(Game.myRooms, r => roomLogic.spawning(r))
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name]
 
-        let role = creep.memory.role;
-        if (creepLogic[role]) {
-            creepLogic[role].run(creep);
-        }
+    const role = creep.memory.role
+    if (creepLogic[role]) {
+      creepLogic[role].run(creep)
     }
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
-        }
+  }
+  for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name]
+      console.log('Clearing non-existing creep memory:', name)
     }
+  }
 }
+
 return module.exports;
 }
-/********** End of module 0: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\main.js **********/
-/********** Start module 1: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\index.js **********/
+/********** End of module 0: D:\Games\Screeps\screeps-ai-v02\src\main.js **********/
+/********** Start module 1: D:\Games\Screeps\screeps-ai-v02\src\creeps\index.js **********/
 __modules[1] = function(module, exports) {
-let creepLogic = {
-    harvester:     __require(4,1),
-    upgrader:      __require(5,1),
+const creepLogic = {
+  harvester: __require(4,1),
+  upgrader: __require(5,1)
 }
 
-module.exports = creepLogic;
+module.exports = creepLogic
+
 return module.exports;
 }
-/********** End of module 1: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\index.js **********/
-/********** Start module 2: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\room\index.js **********/
+/********** End of module 1: D:\Games\Screeps\screeps-ai-v02\src\creeps\index.js **********/
+/********** Start module 2: D:\Games\Screeps\screeps-ai-v02\src\room\index.js **********/
 __modules[2] = function(module, exports) {
 let roomLogic = {
     spawning:     __require(6,2),
@@ -97,57 +98,63 @@ let roomLogic = {
 module.exports = roomLogic;
 return module.exports;
 }
-/********** End of module 2: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\room\index.js **********/
-/********** Start module 3: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\prototypes\index.js **********/
+/********** End of module 2: D:\Games\Screeps\screeps-ai-v02\src\room\index.js **********/
+/********** Start module 3: D:\Games\Screeps\screeps-ai-v02\src\prototypes\index.js **********/
 __modules[3] = function(module, exports) {
 let files = {
     creep: __require(7,3)
 }
 return module.exports;
 }
-/********** End of module 3: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\prototypes\index.js **********/
-/********** Start module 4: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\harvester.js **********/
+/********** End of module 3: D:\Games\Screeps\screeps-ai-v02\src\prototypes\index.js **********/
+/********** Start module 4: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
 __modules[4] = function(module, exports) {
-var harvester = {
+const harvester = {
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
-        if(creep.store.getFreeCapacity() > 0) {
-            var sources = creep.room.find(FIND_SOURCES);
-            if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[0]);
-            }
-        }
-        else {
-            creep.sayHello();
-            
-            if(creep.transfer(Game.spawns['Spawn1'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(Game.spawns['Spawn1']);
-            }
-        }
-    },
-    spawn: function(room) {
-        var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester' && creep.room.name == room.name);
-        console.log('Harvesters: ' + harvesters.length, room.name);
+  /** @param {Creep} creep **/
+  run: function (creep) {
+    if (creep.store.getFreeCapacity() > 0) {
+      const sources = creep.room.find(FIND_SOURCES)
+      if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(sources[0])
+      }
+    } else {
+      creep.sayHello()
 
-        if (harvesters.length < 2) {
-            return true;
-        }
-    },
-    spawnData: function(room) {
-            let name = 'Harvester' + Game.time;
-            let body = [WORK, CARRY, MOVE];
-            let memory = {role: 'harvester'};
-        
-            return {name, body, memory};
+      if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(Game.spawns.Spawn1)
+      }
     }
-};
+  },
+  spawn: function (room) {
+    const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name)
+    console.log('Harvesters: ' + harvesters.length, room.name)
 
-module.exports = harvester;
+    if (harvesters.length < 2) {
+      return true
+    }
+  },
+  spawnData: function (room) {
+    const name = 'Harvester' + Game.time
+    const body = [WORK, CARRY, MOVE]
+    const memory = {
+      role: 'harvester'
+    }
+
+    return {
+      name,
+      body,
+      memory
+    }
+  }
+}
+
+module.exports = harvester
+
 return module.exports;
 }
-/********** End of module 4: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\harvester.js **********/
-/********** Start module 5: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\upgrader.js **********/
+/********** End of module 4: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
+/********** Start module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
 __modules[5] = function(module, exports) {
 var roleUpgrader = {
 
@@ -185,40 +192,43 @@ var roleUpgrader = {
 module.exports = roleUpgrader;
 return module.exports;
 }
-/********** End of module 5: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\creeps\upgrader.js **********/
-/********** Start module 6: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\room\spawning.js **********/
+/********** End of module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
+/********** Start module 6: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
 __modules[6] = function(module, exports) {
-let creepLogic = __require(1,6);
-let creepTypes = _.keys(creepLogic);
+const creepLogic = __require(1,6)
+const creepTypes = _.keys(creepLogic)
 
-function spawnCreeps(room) {
-    _.forEach(creepTypes, type => console.log(type));
-    let creepTypeNeeded = _.find(creepTypes, function(type) {
-        return creepLogic[type].spawn(room);
-    });
-    let creepSpawnData = creepLogic[creepTypeNeeded] && creepLogic[creepTypeNeeded].spawnData(room);
-    console.log(room, JSON.stringify(creepSpawnData));
+function spawnCreeps (room) {
+  _.forEach(creepTypes, type => console.log(type))
+  const creepTypeNeeded = _.find(creepTypes, function (type) {
+    return creepLogic[type].spawn(room)
+  })
+  const creepSpawnData = creepLogic[creepTypeNeeded] && creepLogic[creepTypeNeeded].spawnData(room)
+  console.log(room, JSON.stringify(creepSpawnData))
 
-    if (creepSpawnData) {
-        let spawn = room.find(FIND_MY_SPAWNS)[0];
-        let result = spawn.spawnCreep(creepSpawnData.body, creepSpawnData.name, {memory: creepSpawnData.memory});
-    
-        console.log("Tried to Spawn:", creepTypeNeeded, result)
-    }
+  if (creepSpawnData) {
+    const spawn = room.find(FIND_MY_SPAWNS)[0]
+    const result = spawn.spawnCreep(creepSpawnData.body, creepSpawnData.name, {
+      memory: creepSpawnData.memory
+    })
+
+    console.log('Tried to Spawn:', creepTypeNeeded, result)
+  }
 }
 
-module.exports = spawnCreeps;
+module.exports = spawnCreeps
+
 return module.exports;
 }
-/********** End of module 6: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\room\spawning.js **********/
-/********** Start module 7: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\prototypes\creep.js **********/
+/********** End of module 6: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
+/********** Start module 7: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
 __modules[7] = function(module, exports) {
 Creep.prototype.sayHello = function sayHello() {
     this.say("Hello", true);
 }
 return module.exports;
 }
-/********** End of module 7: C:\Users\Ayden Rennaker\Desktop\Starter Codebase\src\prototypes\creep.js **********/
+/********** End of module 7: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
 /********** Footer **********/
 if(typeof module === "object")
 	module.exports = __require(0);
