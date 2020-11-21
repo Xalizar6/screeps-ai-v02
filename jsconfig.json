@@ -1,13 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "es6",
-        "moduleResolution": "node",
-        "checkJs": true,
-        "alwaysStrict": true
-    },
-    "exclude": [
-        "node_modules",
-        "utility"
-    ]
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es6",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "alwaysStrict": true,
+    "allowUmdGlobalAccess": true
+  },
+  "exclude": [
+    "node_modules",
+    "utility"
+  ]
 }

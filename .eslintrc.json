@@ -7,7 +7,9 @@
     "standard"
   ],
   "globals": {
-    "Game": "writable"
+    "Game": "writable",
+    "_": "readonly",
+    "Memory": "writable"
   },
   "root": true,
   "rules": {}

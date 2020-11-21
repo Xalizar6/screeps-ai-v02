@@ -1,3 +1,7 @@
+interface Game {
+    myRooms: any[];
+}
+
 interface Memory {
     logging: any;
 }
