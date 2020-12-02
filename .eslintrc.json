@@ -6,10 +6,13 @@
   "extends": [
     "standard"
   ],
+  "parser": "babel-eslint",
   "globals": {
     "Game": "writable",
     "_": "readonly",
-    "Memory": "writable"
+    "Memory": "writable",
+    "Xal": "writable",
+    "Log": "writable"
   },
   "root": true,
   "rules": {}
