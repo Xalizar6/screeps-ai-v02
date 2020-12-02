@@ -1,9 +1,11 @@
 const creepLogic = require('../creeps/index')
 const creepTypes = _.keys(creepLogic)
 
+/* global FIND_MY_SPAWNS */
+
 function spawnCreeps (room) {
   // lists all the creep types to console
-  _.forEach(creepTypes, type => console.log(type))
+  //   _.forEach(creepTypes, type => console.log(type))
 
   // find a creep type that returns true for the .spawn() function
   const creepTypeNeeded = _.find(creepTypes, function (type) {
@@ -12,7 +14,7 @@ function spawnCreeps (room) {
 
   // get the data for spawning a new creep of creepTypeNeeded
   const creepSpawnData = creepLogic[creepTypeNeeded] && creepLogic[creepTypeNeeded].spawnData(room)
-  console.log(room, JSON.stringify(creepSpawnData))
+  //   console.log(room, JSON.stringify(creepSpawnData))
 
   if (creepSpawnData) {
     // find the first or 0th spawn in the room
@@ -21,7 +23,7 @@ function spawnCreeps (room) {
       memory: creepSpawnData.memory
     })
 
-    console.log('Tried to Spawn:', creepTypeNeeded, result)
+    Log.Output({ t: 'event', mN: 'spawning', i: true }, `Tried to Spawn a [${creepTypeNeeded}] with result [${Xal.getGlobalKeyByValue(result)}]`)
   }
 }
 

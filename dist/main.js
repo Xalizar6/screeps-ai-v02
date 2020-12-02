@@ -54,8 +54,10 @@ __modules[0] = function(module, exports) {
 const creepLogic = __require(1,0)
 const roomLogic = __require(2,0)
 const prototypes = __require(3,0)
+const utils = __require(4,0)
 
 module.exports.loop = function () {
+  Log.Output({ t: 'info', mN: 'main', lb: true, gt: true }, 'Begin - Main loop routine')
   Game.myRooms = _.filter(Game.rooms, r => r.controller && r.controller.level > 0 && r.controller.my)
   _.forEach(Game.myRooms, r => roomLogic.spawning(r))
   for (const name in Game.creeps) {
@@ -72,6 +74,7 @@ module.exports.loop = function () {
       console.log('Clearing non-existing creep memory:', name)
     }
   }
+  Log.Output({ t: 'Info', mN: 'main', gt: true }, 'End - Main loop routine')
 }
 
 return module.exports;
@@ -80,8 +83,8 @@ return module.exports;
 /********** Start module 1: D:\Games\Screeps\screeps-ai-v02\src\creeps\index.js **********/
 __modules[1] = function(module, exports) {
 const creepLogic = {
-  harvester: __require(4,1),
-  upgrader: __require(5,1)
+  harvester: __require(5,1),
+  upgrader: __require(6,1)
 }
 
 module.exports = creepLogic
@@ -92,7 +95,7 @@ return module.exports;
 /********** Start module 2: D:\Games\Screeps\screeps-ai-v02\src\room\index.js **********/
 __modules[2] = function(module, exports) {
 let roomLogic = {
-    spawning:     __require(6,2),
+    spawning:     __require(7,2),
 }
 
 module.exports = roomLogic;
@@ -101,14 +104,29 @@ return module.exports;
 /********** End of module 2: D:\Games\Screeps\screeps-ai-v02\src\room\index.js **********/
 /********** Start module 3: D:\Games\Screeps\screeps-ai-v02\src\prototypes\index.js **********/
 __modules[3] = function(module, exports) {
-let files = {
-    creep: __require(7,3)
+// eslint-disable-next-line no-unused-vars
+const files = {
+  creep: __require(8,3)
 }
+
 return module.exports;
 }
 /********** End of module 3: D:\Games\Screeps\screeps-ai-v02\src\prototypes\index.js **********/
-/********** Start module 4: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
+/********** Start module 4: D:\Games\Screeps\screeps-ai-v02\src\utils\index.js **********/
 __modules[4] = function(module, exports) {
+// eslint-disable-next-line no-unused-vars
+const files = {
+  memory: __require(9,4),
+  globals: __require(10,4),
+  constants: __require(11,4),
+  log: __require(12,4)
+}
+
+return module.exports;
+}
+/********** End of module 4: D:\Games\Screeps\screeps-ai-v02\src\utils\index.js **********/
+/********** Start module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
+__modules[5] = function(module, exports) {
 const harvester = {
 
   /** @param {Creep} creep **/
@@ -128,7 +146,6 @@ const harvester = {
   },
   spawn: function (room) {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name)
-    console.log('Harvesters: ' + harvesters.length, room.name)
 
     if (harvesters.length < 2) {
       return true
@@ -153,58 +170,63 @@ module.exports = harvester
 
 return module.exports;
 }
-/********** End of module 4: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
-/********** Start module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
-__modules[5] = function(module, exports) {
+/********** End of module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
+/********** Start module 6: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
+__modules[6] = function(module, exports) {
 var roleUpgrader = {
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
-        if(creep.store[RESOURCE_ENERGY] == 0) {
-            var sources = creep.room.find(FIND_SOURCES);
-            if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[0]);
-            }
-        }
-        else {
-            if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller);
-            }
-        }
-    },
-    spawn: function(room) {
-        var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name);
-        console.log('Upgraders: ' + upgraders.length, room.name);
-
-        if (upgraders.length < 2) {
-            return true;
-        }
-    },
-    spawnData: function(room) {
-            let name = 'Upgrader' + Game.time;
-            let body = [WORK, CARRY, MOVE];
-            let memory = {role: 'upgrader'};
-        
-            return {name, body, memory};
+  /** @param {Creep} creep **/
+  run: function (creep) {
+    if (creep.store[RESOURCE_ENERGY] == 0) {
+      var sources = creep.room.find(FIND_SOURCES);
+      if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(sources[0]);
+      }
+    } else {
+      if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
+      }
     }
+  },
+  spawn: function (room) {
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name);
+
+    if (upgraders.length < 2) {
+      return true;
+    }
+  },
+  spawnData: function (room) {
+    let name = 'Upgrader' + Game.time;
+    let body = [WORK, CARRY, MOVE];
+    let memory = {
+      role: 'upgrader'
+    };
+
+    return {
+      name,
+      body,
+      memory
+    };
+  }
 };
 
 module.exports = roleUpgrader;
+
 return module.exports;
 }
-/********** End of module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
-/********** Start module 6: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
-__modules[6] = function(module, exports) {
-const creepLogic = __require(1,6)
+/********** End of module 6: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
+/********** Start module 7: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
+__modules[7] = function(module, exports) {
+const creepLogic = __require(1,7)
 const creepTypes = _.keys(creepLogic)
 
+/* global FIND_MY_SPAWNS */
+
 function spawnCreeps (room) {
-  _.forEach(creepTypes, type => console.log(type))
   const creepTypeNeeded = _.find(creepTypes, function (type) {
     return creepLogic[type].spawn(room)
   })
   const creepSpawnData = creepLogic[creepTypeNeeded] && creepLogic[creepTypeNeeded].spawnData(room)
-  console.log(room, JSON.stringify(creepSpawnData))
 
   if (creepSpawnData) {
     const spawn = room.find(FIND_MY_SPAWNS)[0]
@@ -212,7 +234,7 @@ function spawnCreeps (room) {
       memory: creepSpawnData.memory
     })
 
-    console.log('Tried to Spawn:', creepTypeNeeded, result)
+    Log.Output({ t: 'event', mN: 'spawning', i: true }, `Tried to Spawn a [${creepTypeNeeded}] with result [${Xal.getGlobalKeyByValue(result)}]`)
   }
 }
 
@@ -220,15 +242,129 @@ module.exports = spawnCreeps
 
 return module.exports;
 }
-/********** End of module 6: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
-/********** Start module 7: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
-__modules[7] = function(module, exports) {
-Creep.prototype.sayHello = function sayHello() {
-    this.say("Hello", true);
+/********** End of module 7: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
+/********** Start module 8: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
+__modules[8] = function(module, exports) {
+Creep.prototype.sayHello = function sayHello () {
+  this.say('Hello', true)
 }
+
 return module.exports;
 }
-/********** End of module 7: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
+/********** End of module 8: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
+/********** Start module 9: D:\Games\Screeps\screeps-ai-v02\src\utils\memory.js **********/
+__modules[9] = function(module, exports) {
+if (!Memory.settings) { Memory.settings = {} }
+
+return module.exports;
+}
+/********** End of module 9: D:\Games\Screeps\screeps-ai-v02\src\utils\memory.js **********/
+/********** Start module 10: D:\Games\Screeps\screeps-ai-v02\src\utils\globals.js **********/
+__modules[10] = function(module, exports) {
+// Adds a custom global object under which I publish constants, utilities, etc that I want available at a global scope.
+global.Xal = {}
+
+/**
+ * Converts a numerical return value from an in-game method to the text value from the global object
+ * Reference: https://stackoverflow.com/questions/9907419/how-to-get-a-key-in-a-javascript-object-by-its-value
+ * @param {number|string} value - Return value
+ * @param {object} object - The GLOBAL object which we pass in by default so we can search it
+ */
+global.Xal.getGlobalKeyByValue = function (value, object = global) {
+  return Object.keys(object).find(key => object[key] === value)
+}
+
+return module.exports;
+}
+/********** End of module 10: D:\Games\Screeps\screeps-ai-v02\src\utils\globals.js **********/
+/********** Start module 11: D:\Games\Screeps\screeps-ai-v02\src\utils\constants.js **********/
+__modules[11] = function(module, exports) {
+
+return module.exports;
+}
+/********** End of module 11: D:\Games\Screeps\screeps-ai-v02\src\utils\constants.js **********/
+/********** Start module 12: D:\Games\Screeps\screeps-ai-v02\src\utils\log.js **********/
+__modules[12] = function(module, exports) {
+class Logger {
+  constructor () {
+    this.LogLevels = {
+      ALERT: 1,
+      ERROR: 2,
+      WARNING: 3,
+      EVENT: 4,
+      INFO: 5,
+      DEBUG: 6
+    }
+
+    this.modules = ['Main', 'Spawning', 'Harvester', 'Upgrader']
+
+    if (!Memory.settings.logging) {
+      Memory.settings.logging = {}
+    }
+
+    if (!Memory.settings.logging.modules) {
+      Memory.settings.logging.modules = {}
+    }
+
+    this.modules.forEach(module => {
+      module = module.toLowerCase()
+      if (!Memory.settings.logging.modules[module]) {
+        Memory.settings.logging.modules[module] = {}
+        if (!Memory.settings.logging.modules[module].LoggingLevel) {
+          Memory.settings.logging.modules[module].LoggingLevel = this.LogLevels.EVENT
+        }
+      }
+    })
+  }
+
+  SetLoggingLevel (moduleName, logLevel) {
+    console.log(`Update logging level for [${moduleName}] module`)
+    console.log(`Logging Level specified: ${logLevel}`)
+    const convertedLogLevel = this.LogLevels[logLevel.toUpperCase()]
+
+    if (!Memory.settings.logging.modules[moduleName]) {
+      Memory.settings.logging.modules[moduleName] = {}
+      console.log(`Created  ${moduleName} name in Memory`)
+    }
+    if (Memory.settings.logging.modules[moduleName]) {
+      Memory.settings.logging.modules[moduleName].LoggingLevel = convertedLogLevel
+      console.log(`Logging level for [${moduleName}] set to [${convertedLogLevel}]`)
+    }
+  }
+
+  Output (options, message) {
+    const messageType = this.LogLevels[options.t.toUpperCase()]
+    const module = options.mN.toLowerCase()
+    const moduleLoggingLevelInMemory = Memory.settings.logging.modules[module].LoggingLevel
+
+    if (moduleLoggingLevelInMemory >= messageType) {
+      let outputString = ''
+      if (options.lb) {
+        console.log('\n')
+      }
+      if (options.i) {
+        outputString += '\t'
+      }
+      if (options.gt) {
+        outputString += `[${Game.time}]`
+      }
+      outputString += `[${options.t.toLowerCase()}][${module}]: ${message}`
+      if (options.obj) {
+        if (options.so) {
+          outputString += `${JSON.stringify(options.obj)}`
+        }
+        outputString += `${options.obj}`
+      }
+      console.log(outputString)
+    }
+  }
+}
+
+global.Log = new Logger()
+
+return module.exports;
+}
+/********** End of module 12: D:\Games\Screeps\screeps-ai-v02\src\utils\log.js **********/
 /********** Footer **********/
 if(typeof module === "object")
 	module.exports = __require(0);
