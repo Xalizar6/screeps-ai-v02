@@ -58,6 +58,7 @@ const utils = __require(4,0)
 
 module.exports.loop = function () {
   Log.Output({ t: 'info', mN: 'main', lb: true, gt: true }, 'Begin - Main loop routine')
+  const timer = Game.cpu.getUsed()
   Game.myRooms = _.filter(Game.rooms, r => r.controller && r.controller.level > 0 && r.controller.my)
   _.forEach(Game.myRooms, r => roomLogic.spawning(r))
   for (const name in Game.creeps) {
@@ -74,7 +75,7 @@ module.exports.loop = function () {
       console.log('Clearing non-existing creep memory:', name)
     }
   }
-  Log.Output({ t: 'Info', mN: 'main', gt: true }, 'End - Main loop routine')
+  Log.Output({ t: 'Info', mN: 'main', gt: true }, `End - Main loop routine. CPU used: ${Game.cpu.getUsed() - timer}`)
 }
 
 return module.exports;
@@ -223,6 +224,8 @@ const creepTypes = _.keys(creepLogic)
 /* global FIND_MY_SPAWNS */
 
 function spawnCreeps (room) {
+  Log.Output({ t: 'info', mN: 'spawning', i: true }, 'Begin - spawnCreeps routine')
+  const timer = Game.cpu.getUsed()
   const creepTypeNeeded = _.find(creepTypes, function (type) {
     return creepLogic[type].spawn(room)
   })
@@ -236,6 +239,8 @@ function spawnCreeps (room) {
 
     Log.Output({ t: 'event', mN: 'spawning', i: true }, `Tried to Spawn a [${creepTypeNeeded}] with result [${Xal.getGlobalKeyByValue(result)}]`)
   }
+
+  Log.Output({ t: 'Info', mN: 'spawning', i: true }, `End - spawnCreeps routine. CPU used: ${Game.cpu.getUsed() - timer}`)
 }
 
 module.exports = spawnCreeps

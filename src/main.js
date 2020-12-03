@@ -9,7 +9,7 @@ const utils = require('./utils')
 
 module.exports.loop = function () {
   Log.Output({ t: 'info', mN: 'main', lb: true, gt: true }, 'Begin - Main loop routine')
-  //   console.log(Object.keys(global))
+  const timer = Game.cpu.getUsed()
 
   // make a list of all of our rooms
   Game.myRooms = _.filter(Game.rooms, r => r.controller && r.controller.level > 0 && r.controller.my)
@@ -35,5 +35,5 @@ module.exports.loop = function () {
       console.log('Clearing non-existing creep memory:', name)
     }
   }
-  Log.Output({ t: 'Info', mN: 'main', gt: true }, 'End - Main loop routine')
+  Log.Output({ t: 'Info', mN: 'main', gt: true }, `End - Main loop routine. CPU used: ${Game.cpu.getUsed() - timer}`)
 }
