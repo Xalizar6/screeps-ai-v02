@@ -128,10 +128,13 @@ return module.exports;
 /********** End of module 4: D:\Games\Screeps\screeps-ai-v02\src\utils\index.js **********/
 /********** Start module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
 __modules[5] = function(module, exports) {
-const harvester = {
+/* global FIND_SOURCES, ERR_NOT_IN_RANGE, RESOURCE_ENERGY, WORK, CARRY, MOVE */
 
+const harvester = {
   /** @param {Creep} creep **/
   run: function (creep) {
+    Log.Output({ t: 'info', mN: 'harvester', i: true }, 'Begin - run routine')
+    const timer = Game.cpu.getUsed()
     if (creep.store.getFreeCapacity() > 0) {
       const sources = creep.room.find(FIND_SOURCES)
       if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -144,6 +147,7 @@ const harvester = {
         creep.moveTo(Game.spawns.Spawn1)
       }
     }
+    Log.Output({ t: 'Info', mN: 'harvester', i: true }, `End - run routine. CPU used: ${Game.cpu.getUsed() - timer}`)
   },
   spawn: function (room) {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name)
