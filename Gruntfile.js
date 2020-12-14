@@ -1,23 +1,23 @@
-let matchdep = require('matchdep');
-let mergeFiles = require('./grunt-scripts/mergeFiles');
+const matchdep = require('matchdep')
+const mergeFiles = require('./grunt-scripts/mergeFiles')
 
 module.exports = function (grunt) {
   // Add stats for time spent on each task
-  require('time-grunt')(grunt);
+  require('time-grunt')(grunt)
 
   // Pull defaults (including username and password) from .screeps.json
   const config = require('./.screeps.json')
 
   // Allow grunt options to override default configuration
-  const email = grunt.option('email') || config.email;
-  const password = grunt.option('password') || config.password;
-  const branch = grunt.option('branch') || config.branch;
+  const email = grunt.option('email') || config.email
+  const password = grunt.option('password') || config.password
+  const branch = grunt.option('branch') || config.branch
   const ptr = grunt.option('ptr') ? true : config.ptr
 
   // Load needed tasks
-  matchdep.filterAll(['grunt-*', '!grunt-cli']).forEach(grunt.loadNpmTasks);
+  matchdep.filterAll(['grunt-*', '!grunt-cli']).forEach(grunt.loadNpmTasks)
 
-  mergeFiles(grunt);
+  mergeFiles(grunt)
 
   grunt.initConfig({
     screeps: {
@@ -25,7 +25,7 @@ module.exports = function (grunt) {
         email: email,
         password: password,
         branch: branch,
-        ptr: ptr,
+        ptr: ptr
       },
       dist: {
         src: ['dist/*.js']
@@ -39,14 +39,14 @@ module.exports = function (grunt) {
         filter: 'isFile',
         cwd: 'dist/',
         src: '**',
-        dest: 'Update This Path'
-      },
-    },
-  });
+        dest: 'C:/Users/Dave/AppData/Local/Screeps/scripts/127_0_0_1___21025/dev_local'
+      }
+    }
+  })
 
-  grunt.registerTask('main', ['merge', 'write']);
-  grunt.registerTask('sandbox', ['merge', 'write-private']);
-  grunt.registerTask('merge', 'mergeFiles');
-  grunt.registerTask('write', 'screeps');
-  grunt.registerTask('write-private', 'copy');
-};
+  grunt.registerTask('main', ['merge', 'write'])
+  grunt.registerTask('sandbox', ['merge', 'write-private'])
+  grunt.registerTask('merge', 'mergeFiles')
+  grunt.registerTask('write', 'screeps')
+  grunt.registerTask('write-private', 'copy')
+}
