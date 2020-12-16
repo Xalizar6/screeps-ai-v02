@@ -1,5 +1,6 @@
-declare var global: any;
+declare var global: any
 
+// Based on my research I'm not sure fi this is a linting issue or what but it doesn't really seem worth resolving.
 declare namespace NodeJS {
     interface Global {
         Xal: Xal
@@ -8,7 +9,7 @@ declare namespace NodeJS {
 }
 
 /**
- * My custom library for global functions and utilities.
+ * My custom library for global constants, functions, and utilities.
  */
 interface Xal {
     /**
@@ -18,6 +19,20 @@ interface Xal {
      * @param {object} object - The GLOBAL object which we pass in by default so we can search it
      */
     getGlobalKeyByValue (value, object = global): string | number
+    STATE_SPAWNING: 0
+    STATE_MOVING: 1,
+    STATE_HARVESTING: 2,
+    STATE_DEPOSIT_RESOURCE: 3,
+    STATE_GRAB_RESOURCE: 4,
+    STATE_IDLE: 5,
+    STATE_DISPATCH: 6,
+
+    TERMINAL_ENERGY_STORAGE_TARGET: 10000,
+    TERMINAL_OXYGEN_STORAGE_TARGET: 10000,
+    TERMINAL_UTRIUM_STORAGE_TARGET: 10000,
+
+    STORAGE_ENERGY_STORAGE_TARGET: 100000,
+    STORAGE_UTRIUM_STORAGE_TARGET: 100000
 }
 declare const Xal: Xal
 
@@ -39,7 +54,6 @@ interface Log {
     Output (options: { t: string, mN: string, lb?: boolean, i?: boolean, gt?: boolean, obj?: object, so?: boolean }, message: string, any?: any): void
 }
 declare const Log: Log
-// declare function Output(type: string, Message: string, lineBreak?: boolean, tab?: boolean): void;
 
 interface Game {
     myRooms: any[];
