@@ -135,14 +135,18 @@ const harvester = {
   run: function (creep) {
     Log.Output({ t: 'info', mN: 'harvester', i: true }, 'Begin - run routine')
     const timer = Game.cpu.getUsed()
+    if (creep.spawning) {
+      const returnValue = creep.finalSpawnTick()
+      if (returnValue) {
+        console.log('final tick, spawning next tick')
+      }
+    }
     if (creep.store.getFreeCapacity() > 0) {
       const sources = creep.room.find(FIND_SOURCES)
       if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
         creep.moveTo(sources[0])
       }
     } else {
-      creep.sayHello()
-
       if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(Game.spawns.Spawn1)
       }
@@ -152,7 +156,7 @@ const harvester = {
   spawn: function (room) {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name)
 
-    if (harvesters.length < 2) {
+    if (harvesters.length < 3) {
       return true
     }
   },
@@ -178,44 +182,44 @@ return module.exports;
 /********** End of module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
 /********** Start module 6: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
 __modules[6] = function(module, exports) {
-var roleUpgrader = {
+const roleUpgrader = {
 
   /** @param {Creep} creep **/
   run: function (creep) {
     if (creep.store[RESOURCE_ENERGY] == 0) {
-      var sources = creep.room.find(FIND_SOURCES);
+      const sources = creep.room.find(FIND_SOURCES)
       if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(sources[0]);
+        creep.moveTo(sources[0])
       }
     } else {
       if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
+        creep.moveTo(creep.room.controller)
       }
     }
   },
   spawn: function (room) {
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name);
+    const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name)
 
-    if (upgraders.length < 2) {
-      return true;
+    if (upgraders.length < 1) {
+      return true
     }
   },
   spawnData: function (room) {
-    let name = 'Upgrader' + Game.time;
-    let body = [WORK, CARRY, MOVE];
-    let memory = {
+    const name = 'Upgrader' + Game.time
+    const body = [WORK, CARRY, MOVE]
+    const memory = {
       role: 'upgrader'
-    };
+    }
 
     return {
       name,
       body,
       memory
-    };
+    }
   }
-};
+}
 
-module.exports = roleUpgrader;
+module.exports = roleUpgrader
 
 return module.exports;
 }
@@ -254,8 +258,17 @@ return module.exports;
 /********** End of module 7: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
 /********** Start module 8: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
 __modules[8] = function(module, exports) {
-Creep.prototype.sayHello = function sayHello () {
-  this.say('Hello', true)
+/* global FIND_MY_SPAWNS */
+Creep.prototype.finalSpawnTick = function finalSpawnTick () {
+  let bReturnValue = false
+  this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
+    if (spawn.spawning) {
+      if (spawn.spawning.name === this.name && spawn.spawning.remainingTime === 1) {
+        bReturnValue = true
+      }
+    }
+  })
+  return bReturnValue
 }
 
 return module.exports;
@@ -273,6 +286,8 @@ __modules[10] = function(module, exports) {
 // Adds a custom global object under which I publish constants, utilities, etc that I want available at a global scope.
 global.Xal = {}
 
+/** Global Functions I want available throughout the code */
+
 /**
  * Converts a numerical return value from an in-game method to the text value from the global object
  * Reference: https://stackoverflow.com/questions/9907419/how-to-get-a-key-in-a-javascript-object-by-its-value
@@ -282,6 +297,22 @@ global.Xal = {}
 global.Xal.getGlobalKeyByValue = function (value, object = global) {
   return Object.keys(object).find(key => object[key] === value)
 }
+
+/** Global Constants I want available throughout the code */
+global.Xal.STATE_SPAWNING = 0
+global.Xal.STATE_MOVING = 1
+global.Xal.STATE_HARVESTING = 2
+global.Xal.STATE_DEPOSIT_RESOURCE = 3
+global.Xal.STATE_GRAB_RESOURCE = 4
+global.Xal.STATE_IDLE = 5
+global.Xal.STATE_DISPATCH = 6
+
+global.Xal.TERMINAL_ENERGY_STORAGE_TARGET = 10000
+global.Xal.TERMINAL_OXYGEN_STORAGE_TARGET = 10000
+global.Xal.TERMINAL_UTRIUM_STORAGE_TARGET = 10000
+
+global.Xal.STORAGE_ENERGY_STORAGE_TARGET = 100000
+global.Xal.STORAGE_UTRIUM_STORAGE_TARGET = 100000
 
 return module.exports;
 }

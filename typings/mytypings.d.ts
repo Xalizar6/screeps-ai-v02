@@ -55,6 +55,11 @@ interface Log {
 }
 declare const Log: Log
 
+
+interface Creep {
+    finalSpawnTick (): boolean
+}
+
 interface Game {
     myRooms: any[];
 }

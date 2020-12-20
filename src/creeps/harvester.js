@@ -5,15 +5,18 @@ const harvester = {
   run: function (creep) {
     Log.Output({ t: 'info', mN: 'harvester', i: true }, 'Begin - run routine')
     const timer = Game.cpu.getUsed()
+    if (creep.spawning) {
+      const returnValue = creep.finalSpawnTick()
+      if (returnValue) {
+        console.log('final tick, spawning next tick')
+      }
+    }
     if (creep.store.getFreeCapacity() > 0) {
       const sources = creep.room.find(FIND_SOURCES)
       if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
         creep.moveTo(sources[0])
       }
     } else {
-      // here is the sayHello() prototype
-      creep.sayHello()
-
       if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(Game.spawns.Spawn1)
       }
@@ -25,7 +28,7 @@ const harvester = {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name)
     // console.log('Harvesters: ' + harvesters.length, room.name)
 
-    if (harvesters.length < 2) {
+    if (harvesters.length < 3) {
       return true
     }
   },
