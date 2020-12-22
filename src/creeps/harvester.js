@@ -1,4 +1,5 @@
-/* global FIND_SOURCES, ERR_NOT_IN_RANGE, RESOURCE_ENERGY, WORK, CARRY, MOVE */
+/* global FIND_MY_SPAWNS FIND_SOURCES, ERR_NOT_IN_RANGE, RESOURCE_ENERGY, WORK, CARRY, MOVE */
+const moduleName = 'harvester'
 
 const harvester = {
   /** @param {Creep} creep **/
@@ -17,9 +18,13 @@ const harvester = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(Game.spawns.Spawn1)
-      }
+      const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: function (spawn) { return spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0 } })
+      Log.Output({ t: 'debug', mN: moduleName, i: true, obj: spawns }, 'spawns value is: ')
+      spawns.forEach(spawn => {
+        if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(spawn)
+        }
+      })
     }
     Log.Output({ t: 'Info', mN: 'harvester', i: true }, `End - run routine. CPU used: ${Game.cpu.getUsed() - timer}`)
   },

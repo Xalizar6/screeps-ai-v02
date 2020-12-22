@@ -128,7 +128,8 @@ return module.exports;
 /********** End of module 4: D:\Games\Screeps\screeps-ai-v02\src\utils\index.js **********/
 /********** Start module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
 __modules[5] = function(module, exports) {
-/* global FIND_SOURCES, ERR_NOT_IN_RANGE, RESOURCE_ENERGY, WORK, CARRY, MOVE */
+/* global FIND_MY_SPAWNS FIND_SOURCES, ERR_NOT_IN_RANGE, RESOURCE_ENERGY, WORK, CARRY, MOVE */
+const moduleName = 'harvester'
 
 const harvester = {
   /** @param {Creep} creep **/
@@ -147,9 +148,13 @@ const harvester = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(Game.spawns.Spawn1)
-      }
+      const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: function (spawn) { return spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0 } })
+      Log.Output({ t: 'debug', mN: moduleName, i: true, obj: spawns }, 'spawns value is: ')
+      spawns.forEach(spawn => {
+        if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(spawn)
+        }
+      })
     }
     Log.Output({ t: 'Info', mN: 'harvester', i: true }, `End - run routine. CPU used: ${Game.cpu.getUsed() - timer}`)
   },
@@ -182,70 +187,85 @@ return module.exports;
 /********** End of module 5: D:\Games\Screeps\screeps-ai-v02\src\creeps\harvester.js **********/
 /********** Start module 6: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
 __modules[6] = function(module, exports) {
-const roleUpgrader = {
+var roleUpgrader = {
 
   /** @param {Creep} creep **/
   run: function (creep) {
     if (creep.store[RESOURCE_ENERGY] == 0) {
-      const sources = creep.room.find(FIND_SOURCES)
+      var sources = creep.room.find(FIND_SOURCES);
       if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(sources[0])
+        creep.moveTo(sources[0]);
       }
     } else {
       if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller)
+        creep.moveTo(creep.room.controller);
       }
     }
   },
   spawn: function (room) {
-    const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name)
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.name == room.name);
 
-    if (upgraders.length < 1) {
-      return true
+    if (upgraders.length < 2) {
+      return true;
     }
   },
   spawnData: function (room) {
-    const name = 'Upgrader' + Game.time
-    const body = [WORK, CARRY, MOVE]
-    const memory = {
+    let name = 'Upgrader' + Game.time;
+    let body = [WORK, CARRY, MOVE];
+    let memory = {
       role: 'upgrader'
-    }
+    };
 
     return {
       name,
       body,
       memory
-    }
+    };
   }
-}
+};
 
-module.exports = roleUpgrader
+module.exports = roleUpgrader;
 
 return module.exports;
 }
 /********** End of module 6: D:\Games\Screeps\screeps-ai-v02\src\creeps\upgrader.js **********/
 /********** Start module 7: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
 __modules[7] = function(module, exports) {
+/* global FIND_MY_SPAWNS RESOURCE_ENERGY */
+
 const creepLogic = __require(1,7)
 const creepTypes = _.keys(creepLogic)
-
-/* global FIND_MY_SPAWNS */
+const moduleName = 'spawning'
 
 function spawnCreeps (room) {
-  Log.Output({ t: 'info', mN: 'spawning', i: true }, 'Begin - spawnCreeps routine')
+  Log.Output({ t: 'Info', mN: moduleName, i: true }, 'Begin - spawnCreeps routine')
   const timer = Game.cpu.getUsed()
   const creepTypeNeeded = _.find(creepTypes, function (type) {
     return creepLogic[type].spawn(room)
   })
+
+  Log.Output({ t: 'debug', mN: moduleName, i: true }, 'creepTypeNeeded: ' + creepTypeNeeded)
   const creepSpawnData = creepLogic[creepTypeNeeded] && creepLogic[creepTypeNeeded].spawnData(room)
 
   if (creepSpawnData) {
-    const spawn = room.find(FIND_MY_SPAWNS)[0]
-    const result = spawn.spawnCreep(creepSpawnData.body, creepSpawnData.name, {
-      memory: creepSpawnData.memory
+    const availableSpawns = room.find(FIND_MY_SPAWNS, { filter: function (spawn) { return !spawn.spawning } })
+    availableSpawns.sort((a, b) => (a.store.getUsedCapacity([RESOURCE_ENERGY]) < b.store.getUsedCapacity([RESOURCE_ENERGY]))
+      ? 1
+      : (a.store.getUsedCapacity([RESOURCE_ENERGY]) === b.store.getUsedCapacity([RESOURCE_ENERGY])) ? ((a.name > b.name) ? 1 : -1) : -1)
+
+    availableSpawns.forEach(spawn => {
+      Log.Output({ t: 'debug', mN: moduleName, i: true }, 'Spawn name [' + spawn.name + '] Energy [' +
+       spawn.store.getUsedCapacity([RESOURCE_ENERGY]) + ']')
     })
 
-    Log.Output({ t: 'event', mN: 'spawning', i: true }, `Tried to Spawn a [${creepTypeNeeded}] with result [${Xal.getGlobalKeyByValue(result)}]`)
+    if (availableSpawns.length > 0) {
+      const result = availableSpawns[0].spawnCreep(creepSpawnData.body, creepSpawnData.name, {
+        memory: creepSpawnData.memory
+      })
+      Log.Output({ t: 'event', mN: moduleName, i: true }, `Spawning a [${creepTypeNeeded}] with result [${Xal.getGlobalKeyByValue(result)}]`)
+    } else {
+      Log.Output({ t: 'event', mN: moduleName, i: true }, `Tried to Spawn a [${creepTypeNeeded}] but no spawns are available right now.}]`)
+    }
   }
 
   Log.Output({ t: 'Info', mN: 'spawning', i: true }, `End - spawnCreeps routine. CPU used: ${Game.cpu.getUsed() - timer}`)
@@ -258,7 +278,7 @@ return module.exports;
 /********** End of module 7: D:\Games\Screeps\screeps-ai-v02\src\room\spawning.js **********/
 /********** Start module 8: D:\Games\Screeps\screeps-ai-v02\src\prototypes\creep.js **********/
 __modules[8] = function(module, exports) {
-/* global FIND_MY_SPAWNS */
+/* global Creep FIND_MY_SPAWNS */
 Creep.prototype.finalSpawnTick = function finalSpawnTick () {
   let bReturnValue = false
   this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
