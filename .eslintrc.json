@@ -15,5 +15,9 @@
     "Log": "writable"
   },
   "root": true,
-  "rules": {}
+  "rules": {
+    "max-len": ["error", {
+      "code": 160
+    }]
+  }
 }
